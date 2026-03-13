@@ -11,7 +11,7 @@ import Home            from "./pages/Home";
 import About           from "./pages/About";
 import Company         from "./pages/Company";
 import Contact         from "./pages/Contact";
-import TransferPage    from "./pages/TransferPage";
+import TransferPage    from "./pages/Transferpage";
 import MerchantPayPage from "./pages/Merchantpaypage";
 import AdminDashboard  from "./pages/AdminDashboard";
 
