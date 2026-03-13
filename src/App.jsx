@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { FinTechProvider }  from "./context/FinTechContext";
 import { WalletProvider }   from "./context/WalletContext";
-import { PlatformProvider } from "./context/PlatformContext";
+import { PlatformProvider } from "./context/Platformcontext";
 import Navbar          from "./components/Navbar";
 import Footer          from "./components/Footer";
 import Dashboard       from "./pages/Dashboard";
