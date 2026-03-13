@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { PlatformContext } from "../context/PlatformContext";
+import { PlatformContext } from "../context/Platformcontext";
 import { FinTechContext }  from "../context/FinTechContext";
 
 const sanitize       = (v,max=100) => String(v).replace(/[<>"'`\\]/g,"").slice(0,max);

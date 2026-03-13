@@ -12,7 +12,7 @@ import About           from "./pages/About";
 import Company         from "./pages/Company";
 import Contact         from "./pages/Contact";
 import TransferPage    from "./pages/TransferPage";
-import MerchantPayPage from "./pages/MerchantPayPage";
+import MerchantPayPage from "./pages/Merchantpaypage";
 import AdminDashboard  from "./pages/AdminDashboard";
 
 function App() {

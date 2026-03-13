@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback } from "react";
-import { PlatformContext } from "../context/PlatformContext";
+import { PlatformContext } from "../context/Platformcontext";
 import { FinTechContext }  from "../context/FinTechContext";
 
 const sanitize = (v, max=100) => String(v).replace(/[<>"'`\\]/g,"").slice(0,max);
@@ -77,7 +77,6 @@ export default function TransferPage() {
   const [result,     setResult]     = useState(null);
   const [error,      setError]      = useState("");
   const [loading,    setLoading]    = useState(false);
-  const [devOtp,     setDevOtp]     = useState(null); // show in dev mode
 
   const fee     = recipient ? Math.round((sanitizeAmount(amount)||0) * (recipient.merchant?MERCHANT_RATE:FEE_RATE) * 100)/100 : 0;
   const receive = Math.max(0, Math.round(((sanitizeAmount(amount)||0) - fee)*100)/100);
