@@ -6,6 +6,7 @@ import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");        // ✅ inline error instead of alert
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -13,11 +14,13 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");                                 // ✅ clear previous errors
     try {
-      await login(email.toLowerCase().trim(), password); // ✅ normalize before sending
+      const normalizedEmail = email.toLowerCase().trim();
+      await login(normalizedEmail, password);
       navigate("/dashboard");
     } catch (err) {
-      alert(err.message || "Login failed");
+      setError(err.message || "Login failed. Please check your credentials."); // ✅ show inline
     } finally {
       setLoading(false);
     }
@@ -76,6 +79,16 @@ const Login = () => {
       transition: "all 0.3s ease",
       marginTop: "1rem",
     },
+    errorBox: {
+      backgroundColor: "rgba(239, 68, 68, 0.1)",
+      border: "1px solid rgba(239, 68, 68, 0.4)",
+      color: "#f87171",
+      borderRadius: "10px",
+      padding: "10px 14px",
+      fontSize: "0.85rem",
+      marginBottom: "1rem",
+      textAlign: "center",
+    },
   };
 
   return (
@@ -87,6 +100,9 @@ const Login = () => {
         <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>
           Enter your credentials to access your vault.
         </p>
+
+        {/* ✅ Inline error message */}
+        {error && <div style={styles.errorBox}>{error}</div>}
 
         <label style={styles.label}>Email Address</label>
         <input
@@ -137,7 +153,7 @@ const Login = () => {
           disabled={loading}
           style={{
             ...styles.button,
-            opacity: loading ? 0.7 : 1,          // ✅ visual feedback when loading
+            opacity: loading ? 0.7 : 1,
             cursor: loading ? "not-allowed" : "pointer",
           }}
           onMouseEnter={(e) => !loading && (e.target.style.transform = "translateY(-2px)")}
