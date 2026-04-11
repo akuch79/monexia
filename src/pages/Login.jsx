@@ -1,140 +1,133 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { login } from "../api/api.js";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/dashboard'); 
-      } else {
-        setError(data.error || 'Login failed');
-      }
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err) {
-      setError('Server is offline. Please try again later.');
+      alert(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
+  const styles = {
+    container: {
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      background: "radial-gradient(circle at top right, #1a2a26, #0a0f0d)", // Fintech Emerald
+      padding: "2rem",
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+    },
+    form: {
+      background: "rgba(255, 255, 255, 0.03)",
+      backdropFilter: "blur(15px)",
+      border: "1px solid rgba(16, 185, 129, 0.2)",
+      padding: "3rem 2.5rem",
+      borderRadius: "24px",
+      width: "100%",
+      maxWidth: "420px",
+      boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+      color: "#f8fafc",
+    },
+    input: {
+      width: "100%",
+      padding: "12px 15px",
+      marginBottom: "1.2rem",
+      borderRadius: "12px",
+      border: "1px solid rgba(16, 185, 129, 0.2)",
+      backgroundColor: "#0a0f0d",
+      color: "#fff",
+      fontSize: "1rem",
+      outline: "none",
+      transition: "border-color 0.3s",
+    },
+    label: { display: "block", marginBottom: "0.5rem", fontSize: "0.85rem", color: "#94a3b8", fontWeight: "600" },
+    button: {
+      width: "100%",
+      padding: "14px",
+      fontSize: "1rem",
+      fontWeight: "700",
+      borderRadius: "12px",
+      border: "none",
+      cursor: "pointer",
+      backgroundColor: "#10b981",
+      color: "#064e3b",
+      transition: "all 0.3s ease",
+      marginTop: "1rem",
+    }
+  };
+
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>StoreWallet</h2>
-        <p style={styles.subtitle}>Secure Payment Gateway</p>
+      <form onSubmit={handleLogin} style={styles.form}>
+        <h2 style={{ textAlign: "center", marginBottom: "0.5rem", fontSize: "1.8rem" }}>Welcome Back</h2>
+        <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>Enter your credentials to access your vault.</p>
 
-        {error && <div style={styles.error}>{error}</div>}
+        <label style={styles.label}>Email Address</label>
+        <input
+          type="email"
+          placeholder="name@company.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={styles.input}
+        />
 
-        <form onSubmit={handleLogin} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email Address</label>
-            <input 
-              type="email" 
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-              style={styles.input}
-            />
-          </div>
+        <label style={styles.label}>Password</label>
+        <div style={{ position: "relative", marginBottom: "1rem" }}>
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{ ...styles.input, marginBottom: 0 }}
+          />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ position: "absolute", right: "15px", top: "50%", transform: "translateY(-50%)", cursor: "pointer", color: "#10b981" }}
+          >
+            {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
+          </span>
+        </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-              style={styles.input}
-            />
-          </div>
+        <div style={{ textAlign: "right", marginBottom: "1.5rem" }}>
+          <Link to="/forgot-password" style={{ color: "#10b981", fontSize: "0.85rem", textDecoration: "none" }}>
+            Forgot Password?
+          </Link>
+        </div>
 
-          <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? 'Authenticating...' : 'Login'}
-          </button>
-        </form>
+        <button
+          type="submit"
+          disabled={loading}
+          style={styles.button}
+          onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
+          onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
+        >
+          {loading ? "Verifying..." : "Sign In"}
+        </button>
 
-        <p style={styles.footer}>
-          Don't have an account? <span onClick={() => navigate('/register')} style={styles.link}>Register</span>
+        <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "#94a3b8" }}>
+          New to Monexia? <Link to="/signup" style={{ color: "#10b981", fontWeight: "600", textDecoration: "none" }}>Create account</Link>
         </p>
-      </div>
+      </form>
     </div>
   );
-};
-
-const styles = {
-  container: { 
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    height: '100vh', 
-    // UPDATED: Modern dark gradient background
-    background: 'linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d)',
-    backgroundSize: '400% 400%',
-    animation: 'gradientBG 15s ease infinite',
-  },
-  card: { 
-    backgroundColor: '#ffffff', 
-    padding: '40px', 
-    borderRadius: '16px', 
-    boxShadow: '0 10px 25px rgba(0,0,0,0.2)', 
-    width: '100%', 
-    maxWidth: '400px', 
-    textAlign: 'center' 
-  },
-  title: { margin: '0', color: '#2ecc71', fontSize: '32px', fontWeight: '800', letterSpacing: '-1px' },
-  subtitle: { color: '#95a5a6', marginBottom: '30px', fontSize: '14px', fontWeight: '500' },
-  form: { textAlign: 'left' },
-  inputGroup: { marginBottom: '20px' },
-  label: { fontSize: '13px', fontWeight: '600', color: '#34495e', marginLeft: '2px' },
-  input: { 
-    width: '100%', 
-    padding: '12px 15px', 
-    marginTop: '6px', 
-    borderRadius: '8px', 
-    border: '1px solid #dfe6e9', 
-    boxSizing: 'border-box',
-    fontSize: '15px',
-    outline: 'none',
-    transition: 'border 0.3s'
-  },
-  button: { 
-    width: '100%', 
-    padding: '14px', 
-    backgroundColor: '#2ecc71', 
-    color: 'white', 
-    border: 'none', 
-    borderRadius: '8px', 
-    cursor: 'pointer', 
-    fontSize: '16px', 
-    fontWeight: 'bold', 
-    marginTop: '10px',
-    transition: 'background 0.3s',
-    boxShadow: '0 4px 12px rgba(46, 204, 113, 0.3)'
-  },
-  error: { backgroundColor: '#fadbd8', color: '#c0392b', padding: '12px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', fontWeight: '500' },
-  footer: { marginTop: '25px', fontSize: '14px', color: '#7f8c8d' },
-  link: { color: '#2ecc71', cursor: 'pointer', fontWeight: '700', textDecoration: 'underline' }
 };
 
 export default Login;

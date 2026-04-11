@@ -1,115 +1,173 @@
-import React, { useContext, useState } from "react";
-import { WalletContext } from "../context/WalletContext";
+import React, { useEffect, useState } from "react";
+import { getTransactions, deleteTransaction } from "../api/api.js";
 
-const Transactions = () => {
-  const { transactions } = useContext(WalletContext);
-  const [filter, setFilter] = useState("All");
+export default function Transactions() {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [filter, setFilter] = useState("all"); // all | income | expense
 
-  const filtered = filter === "All" ? transactions : transactions.filter(t => t.type === filter);
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await getTransactions();
+        setTransactions(res);
+      } catch (err) {
+        console.error("Failed to fetch transactions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this transaction?")) return;
+    setDeletingId(id);
+    try {
+      await deleteTransaction(id); // ✅ calls backend
+      setTransactions((prev) => prev.filter((t) => t._id !== id));
+    } catch (err) {
+      alert("Failed to delete. Please try again.");
+      console.error(err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const filtered = transactions.filter((t) =>
+    filter === "all" ? true : t.type === filter
+  );
+
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalExpense = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const balance = totalIncome - totalExpense;
 
   return (
-    <div style={{ background: "#050D1A", minHeight: "100vh", padding: "40px 32px", fontFamily: "DM Sans, sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
-        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        .tx-row { animation: fadeUp 0.35s ease both; transition: background 0.2s; }
-        .tx-row:hover { background: rgba(255,255,255,0.03) !important; }
-        .filter-btn {
-          padding: 8px 20px;
-          border-radius: 8px;
-          font-size: 13px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s;
-          border: 1px solid transparent;
-          font-family: 'DM Sans', sans-serif;
-        }
-      `}</style>
+    <div style={styles.page}>
+      <h1 style={styles.heading}>Transactions</h1>
 
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
-          <div>
-            <h1 style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "32px", color: "#F1F5F9", letterSpacing: "-0.02em", marginBottom: "6px" }}>Transactions</h1>
-            <p style={{ color: "#475569", fontSize: "14px" }}>{transactions.length} total transactions</p>
-          </div>
-
-          {/* Filters */}
-          <div style={{ display: "flex", gap: "8px" }}>
-            {["All", "Deposit", "Withdraw"].map(f => (
-              <button key={f} className="filter-btn" onClick={() => setFilter(f)}
-                style={{
-                  background: filter === f ? "rgba(0,212,170,0.12)" : "transparent",
-                  border: `1px solid ${filter === f ? "rgba(0,212,170,0.3)" : "rgba(255,255,255,0.06)"}`,
-                  color: filter === f ? "#00D4AA" : "#475569",
-                }}>
-                {f}
-              </button>
-            ))}
-          </div>
+      {/* Summary Cards */}
+      <div style={styles.cards}>
+        <div style={{ ...styles.card, borderLeft: "4px solid #10b981" }}>
+          <p style={styles.cardLabel}>Total Income</p>
+          <p style={{ ...styles.cardAmount, color: "#10b981" }}>
+            KES {totalIncome.toLocaleString()}
+          </p>
         </div>
-
-        {/* Table */}
-        <div style={{ background: "rgba(8,18,36,0.8)", border: "1px solid rgba(0,212,170,0.08)", borderRadius: "20px", overflow: "hidden" }}>
-          {/* Table Header */}
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-            {["Transaction", "Type", "Amount", "Date"].map(h => (
-              <span key={h} style={{ color: "#334155", fontSize: "11px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>{h}</span>
-            ))}
-          </div>
-
-          {/* Rows */}
-          {filtered.length === 0 ? (
-            <div style={{ padding: "60px 24px", textAlign: "center", color: "#334155", fontSize: "14px" }}>
-              No transactions found
-            </div>
-          ) : (
-            filtered.map((t, i) => (
-              <div key={i} className="tx-row" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", padding: "18px 24px", borderBottom: "1px solid rgba(255,255,255,0.03)", animationDelay: `${i * 0.04}s` }}>
-                {/* Icon + label */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: "38px", height: "38px", borderRadius: "11px", background: t.type === "Deposit" ? "rgba(0,212,170,0.1)" : "rgba(248,113,113,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", flexShrink: 0 }}>
-                    {t.type === "Deposit" ? "⬇️" : "⬆️"}
-                  </div>
-                  <span style={{ color: "#CBD5E1", fontSize: "14px", fontWeight: 400 }}>{t.type}</span>
-                </div>
-
-                {/* Badge */}
-                <div>
-                  <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "6px", fontSize: "12px", fontWeight: 600, background: t.type === "Deposit" ? "rgba(0,212,170,0.1)" : "rgba(248,113,113,0.1)", color: t.type === "Deposit" ? "#00D4AA" : "#F87171", border: `1px solid ${t.type === "Deposit" ? "rgba(0,212,170,0.2)" : "rgba(248,113,113,0.2)"}` }}>
-                    {t.type}
-                  </span>
-                </div>
-
-                {/* Amount */}
-                <span style={{ color: t.type === "Deposit" ? "#00D4AA" : "#F87171", fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "15px" }}>
-                  {t.type === "Deposit" ? "+" : "-"}${t.amount.toLocaleString()}
-                </span>
-
-                {/* Date */}
-                <span style={{ color: "#475569", fontSize: "13px" }}>{t.date || "—"}</span>
-              </div>
-            ))
-          )}
+        <div style={{ ...styles.card, borderLeft: "4px solid #ef4444" }}>
+          <p style={styles.cardLabel}>Total Expenses</p>
+          <p style={{ ...styles.cardAmount, color: "#ef4444" }}>
+            KES {totalExpense.toLocaleString()}
+          </p>
         </div>
-
-        {/* Summary */}
-        {transactions.length > 0 && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "20px" }}>
-            {[
-              { label: "Total In", value: `+$${transactions.filter(t => t.type === "Deposit").reduce((a, b) => a + b.amount, 0).toLocaleString()}`, color: "#00D4AA" },
-              { label: "Total Out", value: `-$${transactions.filter(t => t.type === "Withdraw").reduce((a, b) => a + b.amount, 0).toLocaleString()}`, color: "#F87171" },
-            ].map((s, i) => (
-              <div key={i} style={{ background: "rgba(8,18,36,0.8)", border: "1px solid rgba(0,212,170,0.06)", borderRadius: "14px", padding: "20px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ color: "#475569", fontSize: "13px" }}>{s.label}</span>
-                <span style={{ color: s.color, fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: "18px" }}>{s.value}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div style={{ ...styles.card, borderLeft: "4px solid #667eea" }}>
+          <p style={styles.cardLabel}>Balance</p>
+          <p style={{ ...styles.cardAmount, color: balance >= 0 ? "#667eea" : "#ef4444" }}>
+            KES {balance.toLocaleString()}
+          </p>
+        </div>
       </div>
+
+      {/* Filter Tabs */}
+      <div style={styles.tabs}>
+        {["all", "income", "expense"].map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            style={{
+              ...styles.tab,
+              background: filter === f ? "#667eea" : "#f1f5f9",
+              color: filter === f ? "#fff" : "#64748b",
+              fontWeight: filter === f ? 700 : 400,
+            }}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      {loading ? (
+        <p style={styles.empty}>Loading transactions...</p>
+      ) : filtered.length === 0 ? (
+        <p style={styles.empty}>No {filter === "all" ? "" : filter} transactions found.</p>
+      ) : (
+        <div style={styles.tableWrap}>
+          <table style={styles.table}>
+            <thead>
+              <tr style={styles.thead}>
+                <th style={styles.th}>Date</th>
+                <th style={styles.th}>Description</th>
+                <th style={styles.th}>Type</th>
+                <th style={{ ...styles.th, textAlign: "right" }}>Amount</th>
+                <th style={{ ...styles.th, textAlign: "center" }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((t) => (
+                <tr key={t._id} style={styles.row}>
+                  <td style={styles.td}>
+                    {new Date(t.date || t.createdAt).toLocaleDateString("en-KE", {
+                      day: "numeric", month: "short", year: "numeric",
+                    })}
+                  </td>
+                  <td style={styles.td}>{t.description}</td>
+                  <td style={styles.td}>
+                    <span style={{
+                      ...styles.badge,
+                      background: t.type === "income" ? "#dcfce7" : "#fee2e2",
+                      color: t.type === "income" ? "#16a34a" : "#dc2626",
+                    }}>
+                      {t.type === "income" ? "▲" : "▼"} {t.type.charAt(0).toUpperCase() + t.type.slice(1)}
+                    </span>
+                  </td>
+                  <td style={{ ...styles.td, textAlign: "right", fontWeight: 600,
+                    color: t.type === "income" ? "#16a34a" : "#dc2626" }}>
+                    {t.type === "income" ? "+" : "-"} KES {t.amount.toLocaleString()}
+                  </td>
+                  <td style={{ ...styles.td, textAlign: "center" }}>
+                    <button
+                      onClick={() => handleDelete(t._id)}
+                      disabled={deletingId === t._id}
+                      style={styles.deleteBtn}
+                      title="Delete"
+                    >
+                      {deletingId === t._id ? "..." : "🗑"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
-};
+}
 
-export default Transactions;
+const styles = {
+  page: { padding: "0" },
+  heading: { fontSize: "22px", fontWeight: 800, color: "#1a202c", marginBottom: "20px" },
+  cards: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px", marginBottom: "24px" },
+  card: { background: "#fff", borderRadius: "12px", padding: "16px 20px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" },
+  cardLabel: { fontSize: "12px", color: "#94a3b8", marginBottom: "6px", fontWeight: 600, textTransform: "uppercase" },
+  cardAmount: { fontSize: "20px", fontWeight: 800, margin: 0 },
+  tabs: { display: "flex", gap: "8px", marginBottom: "20px" },
+  tab: { padding: "7px 18px", borderRadius: "20px", border: "none", cursor: "pointer", fontSize: "13px", transition: "all 0.2s" },
+  tableWrap: { overflowX: "auto", borderRadius: "12px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" },
+  table: { width: "100%", borderCollapse: "collapse", background: "#fff" },
+  thead: { background: "#f8fafc" },
+  th: { padding: "12px 16px", fontSize: "12px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", textAlign: "left", borderBottom: "1px solid #e2e8f0" },
+  row: { borderBottom: "1px solid #f1f5f9", transition: "background 0.15s" },
+  td: { padding: "13px 16px", fontSize: "14px", color: "#374151" },
+  badge: { padding: "4px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: 600 },
+  deleteBtn: { background: "none", border: "none", cursor: "pointer", fontSize: "16px", opacity: 0.7, padding: "4px 8px" },
+  empty: { textAlign: "center", color: "#94a3b8", padding: "40px 0", fontSize: "15px" },
+};
