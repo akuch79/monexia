@@ -7,7 +7,7 @@ export default defineConfig({
     // ✅ Proxy /api calls to your Express backend — no hardcoded localhost URLs needed
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: import.meta.env.VITE_API_URL || "https://monexiabackend.onrender.com/api",
         changeOrigin: true,
       },
     },
