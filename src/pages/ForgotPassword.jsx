@@ -6,26 +6,22 @@ const ForgotPassword = () => {
   const [email, setEmail]     = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
-  const [success, setSuccess] = useState("");
   const navigate              = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess("");
     try {
       const res = await forgotPassword(email.toLowerCase().trim());
 
-      // ✅ If backend returns resetLink, redirect directly
+      // ✅ Extract token from resetLink and redirect immediately
       if (res.resetLink) {
         const token = res.resetLink.split("/reset-password/")[1];
-        navigate(`/reset-password/${token}`);
-      } else {
-        setSuccess(res.message || "Reset link sent. Check your email.");
+        navigate(`/reset-password/${token}`);          // ✅ no email — go straight to reset
       }
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "Email not found. Please check and try again.");
     } finally {
       setLoading(false);
     }
@@ -93,28 +89,18 @@ const ForgotPassword = () => {
       marginBottom: "1rem",
       textAlign: "center",
     },
-    successBox: {
-      backgroundColor: "rgba(16,185,129,0.1)",
-      border: "1px solid rgba(16,185,129,0.4)",
-      color: "#10b981",
-      borderRadius: "10px",
-      padding: "10px 14px",
-      fontSize: "0.85rem",
-      marginBottom: "1rem",
-      textAlign: "center",
-    },
   };
 
   return (
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Icon */}
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
           <div style={{
             width: "60px", height: "60px", borderRadius: "50%",
-            background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto", fontSize: "1.5rem"
+            background: "rgba(16,185,129,0.1)",
+            border: "1px solid rgba(16,185,129,0.3)",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", margin: "0 auto", fontSize: "1.5rem",
           }}>
             🔑
           </div>
@@ -124,11 +110,10 @@ const ForgotPassword = () => {
           Forgot Password?
         </h2>
         <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>
-          Enter your email and we'll send you a reset link.
+          Enter your email to reset your password instantly.
         </p>
 
-        {error   && <div style={styles.errorBox}>{error}</div>}
-        {success && <div style={styles.successBox}>{success}</div>}
+        {error && <div style={styles.errorBox}>{error}</div>}
 
         <label style={styles.label}>Email Address</label>
         <input
@@ -149,7 +134,7 @@ const ForgotPassword = () => {
             cursor: loading ? "not-allowed" : "pointer",
           }}
         >
-          {loading ? "Sending..." : "Send Reset Link"}
+          {loading ? "Verifying..." : "Continue to Reset →"}
         </button>
 
         <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "#94a3b8" }}>

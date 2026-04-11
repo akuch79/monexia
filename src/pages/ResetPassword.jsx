@@ -4,7 +4,7 @@ import { resetPassword } from "../api/api.js";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 const ResetPassword = () => {
-  const { token }                       = useParams();  // ✅ get token from URL
+  const { token }                       = useParams();
   const navigate                        = useNavigate();
   const [password, setPassword]         = useState("");
   const [confirm, setConfirm]           = useState("");
@@ -14,13 +14,20 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm]   = useState(false);
 
+  const strength = () => {
+    if (password.length === 0) return { label: "Enter a password", color: "transparent", width: "0%" };
+    if (password.length < 6)  return { label: "Too short",         color: "#ef4444",     width: "25%" };
+    if (password.length < 8)  return { label: "Fair",              color: "#f59e0b",     width: "50%" };
+    if (password.length < 10) return { label: "Good",              color: "#3b82f6",     width: "75%" };
+    return                           { label: "Strong ✓",          color: "#10b981",     width: "100%" };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     if (password.length < 6)
       return setError("Password must be at least 6 characters.");
-
     if (password !== confirm)
       return setError("Passwords do not match.");
 
@@ -28,14 +35,9 @@ const ResetPassword = () => {
     try {
       const res = await resetPassword(token, password);
 
-      // ✅ Auto-login — save token and redirect
-      if (res.token) {
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("user", JSON.stringify({ name: res.name, email: res.email }));
-      }
-
-      setSuccess("Password reset! Redirecting to dashboard...");
-      setTimeout(() => navigate("/dashboard"), 2000);   // ✅ redirect after 2s
+      // ✅ Token already saved in api.js — just redirect
+      setSuccess("Password reset! Redirecting...");
+      setTimeout(() => navigate("/dashboard"), 1500);
     } catch (err) {
       setError(err.message || "Reset failed. Link may have expired.");
     } finally {
@@ -116,16 +118,18 @@ const ResetPassword = () => {
     },
   };
 
+  const s = strength();
+
   return (
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Icon */}
         <div style={{ textAlign: "center", marginBottom: "1rem" }}>
           <div style={{
             width: "60px", height: "60px", borderRadius: "50%",
-            background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto", fontSize: "1.5rem"
+            background: "rgba(16,185,129,0.1)",
+            border: "1px solid rgba(16,185,129,0.3)",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", margin: "0 auto", fontSize: "1.5rem",
           }}>
             🔒
           </div>
@@ -135,7 +139,7 @@ const ResetPassword = () => {
           Reset Password
         </h2>
         <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>
-          Enter your new password below.
+          Choose a strong new password for your account.
         </p>
 
         {error   && <div style={styles.errorBox}>{error}</div>}
@@ -143,7 +147,7 @@ const ResetPassword = () => {
 
         {/* New Password */}
         <label style={styles.label}>New Password</label>
-        <div style={{ position: "relative", marginBottom: "1.2rem" }}>
+        <div style={{ position: "relative", marginBottom: "0.5rem" }}>
           <input
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
@@ -160,16 +164,31 @@ const ResetPassword = () => {
           </span>
         </div>
 
+        {/* Strength bar */}
+        <div style={{ marginBottom: "1.2rem" }}>
+          <div style={{ height: "4px", borderRadius: "2px", backgroundColor: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: s.width, backgroundColor: s.color, transition: "all 0.3s ease", borderRadius: "2px" }} />
+          </div>
+          <p style={{ fontSize: "0.75rem", color: s.color, marginTop: "4px" }}>{s.label}</p>
+        </div>
+
         {/* Confirm Password */}
         <label style={styles.label}>Confirm Password</label>
-        <div style={{ position: "relative", marginBottom: "1.2rem" }}>
+        <div style={{ position: "relative", marginBottom: "1.5rem" }}>
           <input
             type={showConfirm ? "text" : "password"}
             placeholder="••••••••"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
-            style={styles.input}
+            style={{
+              ...styles.input,
+              borderColor: confirm && confirm !== password
+                ? "rgba(239,68,68,0.5)"
+                : confirm && confirm === password
+                ? "rgba(16,185,129,0.5)"
+                : "rgba(16,185,129,0.2)",
+            }}
           />
           <span
             onClick={() => setShowConfirm(!showConfirm)}
@@ -177,35 +196,18 @@ const ResetPassword = () => {
           >
             {showConfirm ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
           </span>
-        </div>
-
-        {/* Password strength indicator */}
-        <div style={{ marginBottom: "1rem" }}>
-          <div style={{ display: "flex", gap: "4px" }}>
-            {[1,2,3,4].map((level) => (
-              <div key={level} style={{
-                height: "4px", flex: 1, borderRadius: "2px",
-                backgroundColor: password.length >= level * 3
-                  ? level <= 1 ? "#ef4444"
-                  : level <= 2 ? "#f59e0b"
-                  : level <= 3 ? "#3b82f6"
-                  : "#10b981"
-                  : "rgba(255,255,255,0.1)",
-                transition: "background-color 0.3s"
-              }} />
-            ))}
-          </div>
-          <p style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "4px" }}>
-            {password.length === 0 ? "Enter a password" :
-             password.length < 6  ? "Too short" :
-             password.length < 8  ? "Fair" :
-             password.length < 10 ? "Good" : "Strong ✓"}
-          </p>
+          {/* ✅ Live match indicator */}
+          {confirm && (
+            <p style={{ fontSize: "0.75rem", marginTop: "4px",
+              color: confirm === password ? "#10b981" : "#ef4444" }}>
+              {confirm === password ? "✓ Passwords match" : "✗ Passwords do not match"}
+            </p>
+          )}
         </div>
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || (confirm && confirm !== password)}
           style={{
             ...styles.button,
             opacity: loading ? 0.7 : 1,
