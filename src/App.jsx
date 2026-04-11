@@ -20,7 +20,9 @@ import Education from "./pages/Education.jsx";
 import BusinessTools from "./pages/BusinessTools.jsx";
 import Settings from "./pages/Settings.jsx";
 import Investment from "./pages/Investment.jsx";
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword  from "./pages/ResetPassword";
 function PublicLayout() {
   return (
     <>
@@ -62,6 +64,8 @@ function App() {
         <Route path="/business-tools" element={<BusinessTools />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/investment" element={<Investment />} /> {/* ✅ FIXED: was /investments */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" />} />

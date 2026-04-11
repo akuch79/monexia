@@ -62,13 +62,12 @@ export const login = async (email, password) => {
   try {
     const res = await API.post("/auth/login", { email, password });
     if (res.data.token) localStorage.setItem("token", res.data.token);
-    
-    // Flexible user saving
+
     const userData = res.data.user || { name: res.data.name, email: res.data.email };
     if (userData.email) {
       localStorage.setItem("user", JSON.stringify(userData));
     }
-    
+
     return res.data;
   } catch (err) {
     console.error("Login Error Details:", err.response?.data);
@@ -76,22 +75,19 @@ export const login = async (email, password) => {
   }
 };
 
-// Signup user - Updated to handle the 500 error better
+// Signup user
 export const signup = async (name, email, password) => {
   try {
-    // We send a clean object to ensure the backend receives exactly what it needs
-    const res = await API.post("/auth/signup", { 
-        name: name.trim(), 
-        email: email.trim().toLowerCase(), 
-        password: password 
+    const res = await API.post("/auth/signup", {
+      name:     name.trim(),
+      email:    email.trim().toLowerCase(),
+      password: password,
     });
 
-    // Handle successful response
     if (res.data.token) {
       localStorage.setItem("token", res.data.token);
     }
-    
-    // Some backends return 'user', others return flat data. This handles both:
+
     const userToSave = res.data.user || { name: res.data.name, email: res.data.email };
     if (userToSave.name) {
       localStorage.setItem("user", JSON.stringify(userToSave));
@@ -99,11 +95,44 @@ export const signup = async (name, email, password) => {
 
     return res.data;
   } catch (err) {
-    // This logs the actual error from the Node.js server to your browser console
     console.error("CRITICAL SIGNUP ERROR:", err.response?.data || err.message);
-    
-    // Throw the specific error message from the backend if it exists
     throw err.response?.data || { message: "Signup failed: Server Error (500)" };
+  }
+};
+
+// Forgot password — request reset link
+export const forgotPassword = async (email) => {
+  try {
+    const res = await API.post("/auth/forgot-password", {
+      email: email.trim().toLowerCase(),              // ✅ normalize before sending
+    });
+    return res.data;                                  // returns { message, resetLink }
+  } catch (err) {
+    console.error("Forgot Password Error:", err.response?.data);
+    throw err.response?.data || { message: "Failed to send reset link" };
+  }
+};
+
+// Reset password — submit new password with token
+export const resetPassword = async (token, password) => {
+  try {
+    const res = await API.post(`/auth/reset-password/${token}`, { password });
+
+    // ✅ Auto-login after reset — save token and user if returned
+    if (res.data.token) {
+      localStorage.setItem("token", res.data.token);
+    }
+    if (res.data.name || res.data.email) {
+      localStorage.setItem("user", JSON.stringify({
+        name:  res.data.name,
+        email: res.data.email,
+      }));
+    }
+
+    return res.data;                                  // returns { message, token, name, email }
+  } catch (err) {
+    console.error("Reset Password Error:", err.response?.data);
+    throw err.response?.data || { message: "Failed to reset password" };
   }
 };
 
@@ -141,7 +170,14 @@ export const getTransactions = async () => {
 
 export const addTransaction = async (data) => {
   try {
-    const res = await API.post("/transactions", data);
+    const res = await API.post("/transactions", {
+      description: data.description,
+      amount:      Number(data.amount),
+      type:        data.type,
+      category:    data.category || "General",
+      phone:       data.phone    || "",
+      date:        data.date     || new Date(),
+    });
     return res.data;
   } catch (err) {
     throw err.response?.data || { message: "Failed to add transaction" };
