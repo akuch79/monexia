@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email.toLowerCase().trim(), password); // ✅ normalize before sending
       navigate("/dashboard");
     } catch (err) {
       alert(err.message || "Login failed");
@@ -29,7 +29,7 @@ const Login = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      background: "radial-gradient(circle at top right, #1a2a26, #0a0f0d)", // Fintech Emerald
+      background: "radial-gradient(circle at top right, #1a2a26, #0a0f0d)",
       padding: "2rem",
       fontFamily: "'Plus Jakarta Sans', sans-serif",
     },
@@ -56,7 +56,13 @@ const Login = () => {
       outline: "none",
       transition: "border-color 0.3s",
     },
-    label: { display: "block", marginBottom: "0.5rem", fontSize: "0.85rem", color: "#94a3b8", fontWeight: "600" },
+    label: {
+      display: "block",
+      marginBottom: "0.5rem",
+      fontSize: "0.85rem",
+      color: "#94a3b8",
+      fontWeight: "600",
+    },
     button: {
       width: "100%",
       padding: "14px",
@@ -69,14 +75,18 @@ const Login = () => {
       color: "#064e3b",
       transition: "all 0.3s ease",
       marginTop: "1rem",
-    }
+    },
   };
 
   return (
     <div style={styles.container}>
       <form onSubmit={handleLogin} style={styles.form}>
-        <h2 style={{ textAlign: "center", marginBottom: "0.5rem", fontSize: "1.8rem" }}>Welcome Back</h2>
-        <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>Enter your credentials to access your vault.</p>
+        <h2 style={{ textAlign: "center", marginBottom: "0.5rem", fontSize: "1.8rem" }}>
+          Welcome Back
+        </h2>
+        <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>
+          Enter your credentials to access your vault.
+        </p>
 
         <label style={styles.label}>Email Address</label>
         <input
@@ -100,14 +110,24 @@ const Login = () => {
           />
           <span
             onClick={() => setShowPassword(!showPassword)}
-            style={{ position: "absolute", right: "15px", top: "50%", transform: "translateY(-50%)", cursor: "pointer", color: "#10b981" }}
+            style={{
+              position: "absolute",
+              right: "15px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+              color: "#10b981",
+            }}
           >
             {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
           </span>
         </div>
 
         <div style={{ textAlign: "right", marginBottom: "1.5rem" }}>
-          <Link to="/forgot-password" style={{ color: "#10b981", fontSize: "0.85rem", textDecoration: "none" }}>
+          <Link
+            to="/forgot-password"
+            style={{ color: "#10b981", fontSize: "0.85rem", textDecoration: "none" }}
+          >
             Forgot Password?
           </Link>
         </div>
@@ -115,15 +135,22 @@ const Login = () => {
         <button
           type="submit"
           disabled={loading}
-          style={styles.button}
-          onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
+          style={{
+            ...styles.button,
+            opacity: loading ? 0.7 : 1,          // ✅ visual feedback when loading
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
+          onMouseEnter={(e) => !loading && (e.target.style.transform = "translateY(-2px)")}
           onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
         >
           {loading ? "Verifying..." : "Sign In"}
         </button>
 
         <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "#94a3b8" }}>
-          New to Monexia? <Link to="/signup" style={{ color: "#10b981", fontWeight: "600", textDecoration: "none" }}>Create account</Link>
+          New to Monexia?{" "}
+          <Link to="/signup" style={{ color: "#10b981", fontWeight: "600", textDecoration: "none" }}>
+            Create account
+          </Link>
         </p>
       </form>
     </div>
