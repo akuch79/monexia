@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Create axios instance
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://monexiabackend.onrender.com",
+  baseURL: import.meta.env.VITE_API_URL || "https://monexiabackend.onrender.com/api",
 });
 
 // Attach token automatically to every request
