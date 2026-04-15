@@ -6,7 +6,7 @@ import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");        // ✅ inline error instead of alert
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -14,13 +14,13 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");                                 // ✅ clear previous errors
+    setError("");
     try {
       const normalizedEmail = email.toLowerCase().trim();
       await login(normalizedEmail, password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Login failed. Please check your credentials."); // ✅ show inline
+      setError(err.message || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -89,6 +89,15 @@ const Login = () => {
       marginBottom: "1rem",
       textAlign: "center",
     },
+    forgotBtn: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      color: "#10b981",
+      fontSize: "0.85rem",
+      textDecoration: "none",
+      padding: 0,
+    },
   };
 
   return (
@@ -101,7 +110,6 @@ const Login = () => {
           Enter your credentials to access your vault.
         </p>
 
-        {/* ✅ Inline error message */}
         {error && <div style={styles.errorBox}>{error}</div>}
 
         <label style={styles.label}>Email Address</label>
@@ -139,13 +147,15 @@ const Login = () => {
           </span>
         </div>
 
+        {/* ✅ Forgot Password — navigates directly to reset-password */}
         <div style={{ textAlign: "right", marginBottom: "1.5rem" }}>
-          <Link
-            to="/forgot-password"
-            style={{ color: "#10b981", fontSize: "0.85rem", textDecoration: "none" }}
+          <button
+            type="button"
+            onClick={() => navigate("/forgot-password")}
+            style={styles.forgotBtn}
           >
             Forgot Password?
-          </Link>
+          </button>
         </div>
 
         <button

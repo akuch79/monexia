@@ -8,11 +8,13 @@ import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 // Private pages
 import DashboardLayout from "./components/DashboardLayout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import DashboardPage from "./pages/Dashboard.jsx"; // ✅ FIXED: was missing
+import DashboardPage from "./pages/Dashboard.jsx";
 import AddTransaction from "./pages/AddTransaction.jsx";
 import Transactions from "./pages/Transactions.jsx";
 import Analytics from "./pages/Analytics.jsx";
@@ -20,9 +22,7 @@ import Education from "./pages/Education.jsx";
 import BusinessTools from "./pages/BusinessTools.jsx";
 import Settings from "./pages/Settings.jsx";
 import Investment from "./pages/Investment.jsx";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword  from "./pages/ResetPassword";
+
 function PublicLayout() {
   return (
     <>
@@ -47,6 +47,7 @@ function PrivateLayout() {
 function App() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -55,6 +56,12 @@ function App() {
         <Route path="/signup" element={<Signup />} />
       </Route>
 
+      {/* ✅ Password routes — no Navbar, no auth required */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/reset-password/pending" element={<ResetPassword />} />
+
+      {/* Private routes */}
       <Route element={<PrivateLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/transactions" element={<Transactions />} />
@@ -63,11 +70,10 @@ function App() {
         <Route path="/education" element={<Education />} />
         <Route path="/business-tools" element={<BusinessTools />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/investment" element={<Investment />} /> {/* ✅ FIXED: was /investments */}
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/investment" element={<Investment />} />
       </Route>
 
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

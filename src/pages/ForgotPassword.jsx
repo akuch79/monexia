@@ -1,27 +1,49 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { forgotPassword } from "../api/api.js";
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
-  const [email, setEmail]     = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
-  const navigate              = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
-    try {
-      const res = await forgotPassword(email.toLowerCase().trim());
+    setMessage("");
+    setLoading(true);
 
-      // ✅ Extract token from resetLink and redirect immediately
-      if (res.resetLink) {
-        const token = res.resetLink.split("/reset-password/")[1];
-        navigate(`/reset-password/${token}`);          // ✅ no email — go straight to reset
+    try {
+      const response = await fetch(
+        "https://monexiabackend.onrender.com/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong. Try again.");
       }
+
+      setMessage("Reset link sent! Redirecting...");
+
+      // ✅ If backend returns token → go directly to reset form
+      // ✅ If backend only emails the token → go to pending screen
+      setTimeout(() => {
+        if (data.token) {
+          navigate(`/reset-password/${data.token}`);
+        } else {
+          navigate("/reset-password/pending");
+        }
+      }, 1500);
+
     } catch (err) {
-      setError(err.message || "Email not found. Please check and try again.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -37,10 +59,10 @@ const ForgotPassword = () => {
       padding: "2rem",
       fontFamily: "'Plus Jakarta Sans', sans-serif",
     },
-    form: {
-      background: "rgba(255,255,255,0.03)",
+    card: {
+      background: "rgba(255, 255, 255, 0.03)",
       backdropFilter: "blur(15px)",
-      border: "1px solid rgba(16,185,129,0.2)",
+      border: "1px solid rgba(16, 185, 129, 0.2)",
       padding: "3rem 2.5rem",
       borderRadius: "24px",
       width: "100%",
@@ -58,13 +80,13 @@ const ForgotPassword = () => {
     input: {
       width: "100%",
       padding: "12px 15px",
-      marginBottom: "1.2rem",
       borderRadius: "12px",
-      border: "1px solid rgba(16,185,129,0.2)",
+      border: "1px solid rgba(16, 185, 129, 0.2)",
       backgroundColor: "#0a0f0d",
       color: "#fff",
       fontSize: "1rem",
       outline: "none",
+      boxSizing: "border-box",
     },
     button: {
       width: "100%",
@@ -76,12 +98,22 @@ const ForgotPassword = () => {
       cursor: "pointer",
       backgroundColor: "#10b981",
       color: "#064e3b",
-      marginTop: "1rem",
       transition: "all 0.3s ease",
+      marginTop: "1.2rem",
+    },
+    successBox: {
+      backgroundColor: "rgba(16, 185, 129, 0.1)",
+      border: "1px solid rgba(16, 185, 129, 0.4)",
+      color: "#6ee7b7",
+      borderRadius: "10px",
+      padding: "10px 14px",
+      fontSize: "0.85rem",
+      marginBottom: "1rem",
+      textAlign: "center",
     },
     errorBox: {
-      backgroundColor: "rgba(239,68,68,0.1)",
-      border: "1px solid rgba(239,68,68,0.4)",
+      backgroundColor: "rgba(239, 68, 68, 0.1)",
+      border: "1px solid rgba(239, 68, 68, 0.4)",
       color: "#f87171",
       borderRadius: "10px",
       padding: "10px 14px",
@@ -93,57 +125,62 @@ const ForgotPassword = () => {
 
   return (
     <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          <div style={{
-            width: "60px", height: "60px", borderRadius: "50%",
-            background: "rgba(16,185,129,0.1)",
-            border: "1px solid rgba(16,185,129,0.3)",
-            display: "flex", alignItems: "center",
-            justifyContent: "center", margin: "0 auto", fontSize: "1.5rem",
-          }}>
-            🔑
-          </div>
-        </div>
-
+      <div style={styles.card}>
         <h2 style={{ textAlign: "center", marginBottom: "0.5rem", fontSize: "1.8rem" }}>
-          Forgot Password?
+          Forgot Password
         </h2>
         <p style={{ textAlign: "center", color: "#94a3b8", marginBottom: "2rem", fontSize: "0.9rem" }}>
-          Enter your email to reset your password instantly.
+          Enter your email and we'll send you a reset link.
         </p>
 
+        {message && <div style={styles.successBox}>{message}</div>}
         {error && <div style={styles.errorBox}>{error}</div>}
 
-        <label style={styles.label}>Email Address</label>
-        <input
-          type="email"
-          placeholder="name@company.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={styles.input}
-        />
+        <form onSubmit={handleSubmit}>
+          <label style={styles.label}>Email Address</label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@company.com"
+            style={styles.input}
+          />
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            ...styles.button,
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-        >
-          {loading ? "Verifying..." : "Continue to Reset →"}
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              ...styles.button,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            onMouseEnter={(e) => !loading && (e.target.style.transform = "translateY(-2px)")}
+            onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
+          >
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </form>
 
         <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "#94a3b8" }}>
-          Remembered it?{" "}
-          <Link to="/login" style={{ color: "#10b981", fontWeight: "600", textDecoration: "none" }}>
+          Remember your password?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#10b981",
+              fontWeight: "600",
+              fontSize: "0.9rem",
+              padding: 0,
+            }}
+          >
             Back to Login
-          </Link>
+          </button>
         </p>
-      </form>
+      </div>
     </div>
   );
 };
