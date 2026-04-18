@@ -104,9 +104,9 @@ export const signup = async (name, email, password) => {
 export const forgotPassword = async (email) => {
   try {
     const res = await API.post("/auth/forgot-password", {
-      email: email.trim().toLowerCase(),              // ✅ normalize before sending
+      email: email.trim().toLowerCase(),              
     });
-    return res.data;                                  // returns { message, resetLink }
+    return res.data;                                  
   } catch (err) {
     console.error("Forgot Password Error:", err.response?.data);
     throw err.response?.data || { message: "Failed to send reset link" };
