@@ -26,9 +26,11 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             react:  ["react", "react-dom", "react-router-dom"],
-            charts: ["recharts"],
-            icons:  ["lucide-react"],
-            utils:  ["axios", "date-fns"],
+            charts: ["recharts", "chart.js", "react-chartjs-2"],
+            icons:  ["lucide-react", "react-icons"],
+            motion: ["framer-motion"],
+            ui:     ["react-toastify"],
+            utils:  ["axios"],
           },
         },
       },
