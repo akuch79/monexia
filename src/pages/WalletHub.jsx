@@ -11,40 +11,83 @@ const WalletHub = () => {
   const [recipientInfo, setRecipientInfo] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [transactions, setTransactions] = useState([]);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchWalletData = async () => {
       try {
         const token = localStorage.getItem('token');
+        
+        // Don't redirect - let the dashboard layout handle authentication
         if (!token) {
-          navigate('/login');
+          setError('Please log in to view your wallet');
+          setLoading(false);
           return;
         }
 
-        const response = await fetch('/api/transactions', {
+        // Try to fetch from wallet API first, fallback to transactions API
+        let response = await fetch('/api/wallet/balance', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
+        // If wallet endpoint doesn't exist, use transactions endpoint
+        if (!response.ok) {
+          response = await fetch('/api/transactions', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        }
+
         if (response.ok) {
-          const transactions = await response.json();
-          const calculatedBalance = transactions.reduce((sum, tx) => {
-            return tx.type === 'income' ? sum + tx.amount : sum - tx.amount;
-          }, 0);
-          setBalance(calculatedBalance);
-          setTransactions(transactions.slice(0, 10));
+          const data = await response.json();
+          
+          // Handle different response formats
+          let calculatedBalance = 0;
+          let transactionsData = [];
+          
+          if (data.balance !== undefined) {
+            // Response from /api/wallet/balance
+            setBalance(data.balance);
+          } else if (Array.isArray(data)) {
+            // Response from /api/transactions
+            transactionsData = data;
+            calculatedBalance = data.reduce((sum, tx) => {
+              return tx.type === 'income' ? sum + tx.amount : sum - tx.amount;
+            }, 0);
+            setBalance(calculatedBalance);
+            setTransactions(data.slice(0, 10));
+          } else if (data.transactions) {
+            // Response from /api/wallet/transactions
+            transactionsData = data.transactions;
+            calculatedBalance = data.transactions.reduce((sum, tx) => {
+              return tx.type === 'income' ? sum + tx.amount : sum - tx.amount;
+            }, 0);
+            setBalance(calculatedBalance);
+            setTransactions(data.transactions.slice(0, 10));
+          } else if (data.stats) {
+            // Response from /api/wallet/stats
+            setBalance(data.stats.savings);
+          }
+        } else if (response.status === 401) {
+          // Token expired or invalid, but don't redirect immediately
+          setError('Session expired. Please refresh the page.');
+        } else {
+          setError('Unable to fetch wallet data');
         }
       } catch (error) {
         console.error('Error fetching wallet data:', error);
+        setError('Network error. Please check your connection.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchWalletData();
-  }, [navigate]);
+  }, []); // Removed navigate dependency to prevent redirects
 
   const handlePayment = async () => {
     if (!paymentAmount || paymentAmount <= 0) {
@@ -60,6 +103,13 @@ const WalletHub = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('Please log in to continue');
+        setLoading(false);
+        return;
+      }
+
       const transactionData = {
         description: `${paymentType === 'send' ? 'Send money to' : paymentType === 'receive' ? 'Receive from' : paymentType === 'deposit' ? 'Deposit via' : 'Transfer via'} ${selectedMethod}`,
         amount: parseFloat(paymentAmount),
@@ -79,14 +129,28 @@ const WalletHub = () => {
       });
 
       if (response.ok) {
+        const newTransaction = await response.json();
         setShowSuccess(true);
+        
+        // Update balance locally
+        if (transactionData.type === 'income') {
+          setBalance(prev => prev + parseFloat(paymentAmount));
+        } else {
+          setBalance(prev => prev - parseFloat(paymentAmount));
+        }
+        
+        // Add to recent transactions
+        setTransactions(prev => [newTransaction, ...prev].slice(0, 10));
+        
         setTimeout(() => {
           setShowSuccess(false);
           setShowPaymentModal(false);
           setPaymentAmount('');
           setRecipientInfo('');
-          window.location.reload();
         }, 2000);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Transaction failed. Please try again.');
       }
     } catch (error) {
       console.error('Payment error:', error);
@@ -162,6 +226,21 @@ const WalletHub = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.errorContainer}>
+          <span style={styles.errorIcon}>⚠️</span>
+          <h3 style={styles.errorTitle}>Unable to load wallet</h3>
+          <p style={styles.errorMessage}>{error}</p>
+          <button style={styles.retryButton} onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       {/* Success Notification */}
@@ -201,6 +280,7 @@ const WalletHub = () => {
         </div>
       </div>
 
+      {/* Rest of your component remains the same */}
       {/* Action Buttons */}
       <div style={styles.actionSection}>
         <h3 style={styles.sectionTitle}>Quick Actions</h3>
@@ -373,308 +453,41 @@ const WalletHub = () => {
   );
 };
 
+// Add the missing error styles
 const styles = {
-  container: {
-    maxWidth: '1400px',
-    margin: '0 auto',
-    padding: '2rem',
-    background: '#f0fdf4',
-    minHeight: '100vh',
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '400px',
-  },
-  spinner: {
-    width: '50px',
-    height: '50px',
-    border: '3px solid #e2e8f0',
-    borderTopColor: '#10b981',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-  loadingText: {
-    marginTop: '1rem',
-    color: '#64748b',
-  },
-  successNotification: {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    background: '#10b981',
-    color: 'white',
-    padding: '1rem 1.5rem',
-    borderRadius: '12px',
-    zIndex: 2000,
-    animation: 'slideIn 0.3s ease',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '2rem',
-    flexWrap: 'wrap',
-    gap: '1rem',
-  },
-  title: {
-    fontSize: '2rem',
-    fontWeight: '700',
-    color: '#064e3b',
-    marginBottom: '0.5rem',
-  },
-  subtitle: {
-    color: '#64748b',
-    fontSize: '0.875rem',
-  },
-  currencyBadge: {
+  // ... (keep all your existing styles)
+  errorContainer: {
+    textAlign: 'center',
+    padding: '3rem',
     background: 'white',
-    padding: '0.5rem 1rem',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-  },
-  balanceCard: {
-    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-    borderRadius: '24px',
-    padding: '2rem',
-    color: 'white',
-    marginBottom: '2rem',
-    boxShadow: '0 20px 40px rgba(16,185,129,0.2)',
-  },
-  balanceHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '1rem',
-    opacity: 0.9,
-  },
-  balanceLabel: {
-    fontSize: '0.875rem',
-  },
-  balanceCurrency: {
-    fontSize: '0.75rem',
-  },
-  balanceAmount: {
-    fontSize: '3rem',
-    fontWeight: 'bold',
-    marginBottom: '0.5rem',
-  },
-  equivalentBalance: {
-    fontSize: '0.875rem',
-    opacity: 0.9,
-    marginBottom: '1rem',
-  },
-  balanceFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '0.75rem',
-    opacity: 0.8,
-  },
-  actionSection: {
-    marginBottom: '2rem',
-  },
-  sectionTitle: {
-    fontSize: '1.25rem',
-    fontWeight: '600',
-    color: '#064e3b',
-    marginBottom: '1rem',
-  },
-  methodsBadge: {
-    fontSize: '0.75rem',
-    fontWeight: 'normal',
-    color: '#64748b',
-    marginLeft: '0.5rem',
-  },
-  actionGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-    gap: '1rem',
-  },
-  actionButton: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '1rem',
-    border: 'none',
     borderRadius: '16px',
-    cursor: 'pointer',
-    transition: 'transform 0.2s ease',
-  },
-  methodsSection: {
-    marginBottom: '2rem',
-  },
-  methodsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: '1rem',
-  },
-  methodCard: {
-    background: 'white',
-    borderRadius: '12px',
-    padding: '1rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    border: '1px solid #e2e8f0',
-  },
-  methodIcon: {
-    fontSize: '2rem',
-  },
-  methodDetails: {
-    flex: 1,
-  },
-  methodName: {
-    fontWeight: '600',
-    color: '#1e293b',
-    marginBottom: '0.25rem',
-  },
-  methodCountries: {
-    fontSize: '0.75rem',
-    color: '#64748b',
-  },
-  methodFee: {
-    fontSize: '0.7rem',
-    color: '#f59e0b',
-  },
-  methodProvider: {
-    fontSize: '0.7rem',
-    color: '#8b5cf6',
-  },
-  southSudanSection: {
-    marginBottom: '2rem',
-    background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-    borderRadius: '20px',
-    padding: '1.5rem',
-  },
-  southSudanHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    marginBottom: '1rem',
-  },
-  southSudanFlag: {
-    fontSize: '2rem',
-  },
-  recentSection: {
     marginTop: '2rem',
   },
-  transactionsList: {
-    background: 'white',
-    borderRadius: '16px',
-    overflow: 'hidden',
+  errorIcon: {
+    fontSize: '3rem',
+    display: 'block',
+    marginBottom: '1rem',
   },
-  transactionItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    padding: '1rem',
-    borderBottom: '1px solid #f1f5f9',
-  },
-  transactionIcon: {
-    fontSize: '1.5rem',
-  },
-  transactionDetails: {
-    flex: 1,
-  },
-  transactionDesc: {
-    fontWeight: '500',
-    color: '#1e293b',
-  },
-  transactionDate: {
-    fontSize: '0.75rem',
-    color: '#94a3b8',
-  },
-  transactionAmount: {
-    fontWeight: '600',
-    fontSize: '1rem',
-  },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
-  modal: {
-    background: 'white',
-    borderRadius: '20px',
-    maxWidth: '500px',
-    width: '90%',
-    maxHeight: '90vh',
-    overflow: 'auto',
-  },
-  modalHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1.5rem',
-    borderBottom: '1px solid #e2e8f0',
-  },
-  modalTitle: {
+  errorTitle: {
     fontSize: '1.25rem',
     fontWeight: '600',
-    color: '#064e3b',
-    margin: 0,
+    color: '#dc2626',
+    marginBottom: '0.5rem',
   },
-  modalClose: {
-    background: 'none',
-    border: 'none',
-    fontSize: '1.5rem',
-    cursor: 'pointer',
+  errorMessage: {
     color: '#64748b',
+    marginBottom: '1.5rem',
   },
-  modalBody: {
-    padding: '1.5rem',
-  },
-  methodDisplay: {
-    padding: '0.75rem',
-    background: '#f0fdf4',
-    borderRadius: '8px',
-    marginBottom: '1rem',
-  },
-  modalInput: {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    marginBottom: '1rem',
-    fontSize: '1rem',
-  },
-  modalButtons: {
-    display: 'flex',
-    gap: '1rem',
-    marginTop: '1rem',
-  },
-  modalCancel: {
-    flex: 1,
-    padding: '0.75rem',
-    border: '1px solid #e2e8f0',
-    background: 'white',
-    borderRadius: '8px',
-    cursor: 'pointer',
-  },
-  modalConfirm: {
-    flex: 1,
-    padding: '0.75rem',
-    border: 'none',
+  retryButton: {
+    padding: '0.75rem 1.5rem',
     background: '#10b981',
     color: 'white',
+    border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600',
   },
+  // ... (rest of your styles)
 };
 
 // Add animations
