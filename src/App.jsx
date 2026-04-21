@@ -22,6 +22,7 @@ import Education from "./pages/Education.jsx";
 import BusinessTools from "./pages/BusinessTools.jsx";
 import Settings from "./pages/Settings.jsx";
 import Investment from "./pages/Investment.jsx";
+import WalletHub from "./pages/WalletHub";
 
 function PublicLayout() {
   return (
@@ -71,6 +72,7 @@ function App() {
         <Route path="/business-tools" element={<BusinessTools />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/investment" element={<Investment />} />
+        <Route path="/wallet" element={<WalletHub />} />
       </Route>
 
       {/* Fallback */}
