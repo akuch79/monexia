@@ -23,6 +23,7 @@ import BusinessTools from "./pages/BusinessTools.jsx";
 import Settings from "./pages/Settings.jsx";
 import Investment from "./pages/Investment.jsx";
 import WalletHub from "./pages/WalletHub.jsx";
+import MpesaConsole from "./pages/MpesaConsole.jsx"; // ✅ M-Pesa console
 
 function PublicLayout() {
   return (
@@ -64,15 +65,16 @@ function App() {
 
       {/* Private routes */}
       <Route element={<PrivateLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/transactions" element={<Transactions />} />
+        <Route path="/dashboard"       element={<DashboardPage />} />
+        <Route path="/transactions"    element={<Transactions />} />
         <Route path="/add-transaction" element={<AddTransaction />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/education" element={<Education />} />
-        <Route path="/business-tools" element={<BusinessTools />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/investment" element={<Investment />} />
-        <Route path="/wallet" element={<WalletHub />} />
+        <Route path="/analytics"       element={<Analytics />} />
+        <Route path="/education"       element={<Education />} />
+        <Route path="/business-tools"  element={<BusinessTools />} />
+        <Route path="/settings"        element={<Settings />} />
+        <Route path="/investment"      element={<Investment />} />
+        <Route path="/wallet"          element={<WalletHub />} />
+        <Route path="/mpesa"           element={<MpesaConsole />} /> {/* ✅ Added */}
       </Route>
 
       {/* Fallback */}
