@@ -22,7 +22,7 @@ import Education from "./pages/Education.jsx";
 import BusinessTools from "./pages/BusinessTools.jsx";
 import Settings from "./pages/Settings.jsx";
 import Investment from "./pages/Investment.jsx";
-import WalletHub from "./pages/WalletHub";
+import WalletHub from "./pages/WalletHub.jsx";
 
 function PublicLayout() {
   return (
@@ -57,7 +57,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
       </Route>
 
-      {/* ✅ Password routes — no Navbar, no auth required */}
+      {/* Password routes — no Navbar, no auth required */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/reset-password/pending" element={<ResetPassword />} />

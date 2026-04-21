@@ -66,7 +66,6 @@ const css = `
     color: #064e3b;
   }
 
-  /* Top Nav */
   .wh-nav {
     background: #fff;
     border-bottom: 1px solid #d1fae5;
@@ -80,7 +79,7 @@ const css = `
     z-index: 50;
   }
   .wh-nav-logo { font-size: 1.3rem; font-weight: 600; color: #10b981; letter-spacing: -0.5px; }
-  .wh-nav-back { 
+  .wh-nav-back {
     display: flex; align-items: center; gap: 6px;
     background: #f0fdf4; border: 1px solid #a7f3d0;
     padding: 8px 14px; border-radius: 20px; cursor: pointer;
@@ -89,7 +88,6 @@ const css = `
   }
   .wh-nav-back:hover { background: #d1fae5; }
 
-  /* Hero Balance Strip */
   .wh-balance-strip {
     background: linear-gradient(135deg, #065f46 0%, #047857 50%, #10b981 100%);
     padding: 2.5rem 2rem;
@@ -124,7 +122,6 @@ const css = `
     backdrop-filter: blur(4px);
   }
 
-  /* Quick Actions Row */
   .wh-quick-row {
     background: #fff;
     border-bottom: 1px solid #d1fae5;
@@ -142,15 +139,12 @@ const css = `
     background: #10b981; border-color: #10b981; color: white;
     transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.25);
   }
-  .wh-quick-btn:hover .wh-qb-icon, .wh-quick-btn.active .wh-qb-icon { color: white; }
+  .wh-quick-btn:hover .wh-qb-label, .wh-quick-btn.active .wh-qb-label { color: white; }
   .wh-qb-icon { font-size: 1.5rem; }
   .wh-qb-label { font-size: 0.78rem; font-weight: 500; color: #065f46; }
-  .wh-quick-btn:hover .wh-qb-label, .wh-quick-btn.active .wh-qb-label { color: white; }
 
-  /* Main content */
   .wh-main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
 
-  /* Panels */
   .wh-panel {
     background: #fff; border: 1px solid #d1fae5;
     border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;
@@ -160,7 +154,6 @@ const css = `
   .wh-panel-title { font-size: 1.2rem; font-weight: 600; color: #064e3b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
   .wh-panel-title span { font-size: 1.3rem; }
 
-  /* Form elements */
   .wh-field { margin-bottom: 1.2rem; }
   .wh-label { display: block; font-size: 0.82rem; font-weight: 500; color: #6b7280; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
   .wh-input {
@@ -176,12 +169,9 @@ const css = `
     border: 1.5px solid #a7f3d0; border-radius: 12px;
     background: #f0fdf4; color: #064e3b;
     font-size: 1rem; font-family: 'DM Sans', sans-serif;
-    outline: none; cursor: pointer;
-    appearance: none;
+    outline: none; cursor: pointer; appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 40px;
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px;
   }
   .wh-select:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
   .wh-textarea {
@@ -193,7 +183,6 @@ const css = `
   }
   .wh-textarea:focus { border-color: #10b981; }
 
-  /* Amount input with currency prefix */
   .wh-amount-wrap { position: relative; }
   .wh-amount-prefix {
     position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
@@ -202,7 +191,6 @@ const css = `
   }
   .wh-amount-input { padding-left: 56px !important; font-family: 'DM Mono', monospace !important; font-size: 1.1rem !important; }
 
-  /* Conversion display */
   .wh-convert-box {
     background: #f0fdf4; border: 1px solid #a7f3d0;
     border-radius: 12px; padding: 12px 16px; margin-top: 8px;
@@ -212,11 +200,9 @@ const css = `
   .wh-convert-rate { color: #6b7280; }
   .wh-convert-result { font-family: 'DM Mono', monospace; font-weight: 600; color: #065f46; font-size: 1rem; }
 
-  /* Two-column grid */
   .wh-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   @media (max-width: 640px) { .wh-grid-2 { grid-template-columns: 1fr; } }
 
-  /* Submit button */
   .wh-submit {
     width: 100%; padding: 15px;
     background: #10b981; color: #fff;
@@ -224,14 +210,12 @@ const css = `
     font-size: 1rem; font-weight: 600;
     font-family: 'DM Sans', sans-serif;
     cursor: pointer; transition: all 0.2s;
-    margin-top: 0.5rem;
-    letter-spacing: 0.2px;
+    margin-top: 0.5rem; letter-spacing: 0.2px;
   }
   .wh-submit:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(16,185,129,0.3); }
   .wh-submit:active { transform: translateY(0); }
   .wh-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-  /* Payment method grid */
   .wh-method-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
   .wh-method-card {
     border: 2px solid #d1fae5; border-radius: 12px;
@@ -244,12 +228,10 @@ const css = `
   .wh-method-name { font-size: 0.78rem; font-weight: 600; color: #064e3b; }
   .wh-method-desc { font-size: 0.7rem; color: #9ca3af; margin-top: 2px; }
 
-  /* Investment cards */
   .wh-invest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
   .wh-invest-card {
     border: 2px solid #d1fae5; border-radius: 14px;
-    padding: 18px 14px; cursor: pointer; transition: all 0.2s;
-    background: #f0fdf4;
+    padding: 18px 14px; cursor: pointer; transition: all 0.2s; background: #f0fdf4;
   }
   .wh-invest-card:hover { border-color: #10b981; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(16,185,129,0.15); }
   .wh-invest-card.selected { border-color: #10b981; background: #ecfdf5; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
@@ -258,13 +240,11 @@ const css = `
   .wh-invest-desc { font-size: 0.75rem; color: #6b7280; line-height: 1.4; }
   .wh-invest-min { font-size: 0.72rem; color: #10b981; font-weight: 600; margin-top: 6px; }
 
-  /* Connected accounts */
   .wh-accounts-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
   .wh-account-card {
     display: flex; align-items: center; gap: 14px;
     padding: 16px; border-radius: 14px;
-    border: 1.5px solid #d1fae5; background: #f9fafb;
-    transition: all 0.2s;
+    border: 1.5px solid #d1fae5; background: #f9fafb; transition: all 0.2s;
   }
   .wh-account-card:hover { background: #f0fdf4; border-color: #a7f3d0; }
   .wh-account-icon {
@@ -278,7 +258,6 @@ const css = `
   .wh-account-balance { font-family: 'DM Mono', monospace; font-weight: 600; color: #10b981; font-size: 0.95rem; }
   .wh-account-badge { font-size: 0.68rem; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 20px; font-weight: 600; margin-top: 4px; display: inline-block; }
 
-  /* Add account grid */
   .wh-add-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
   .wh-add-card {
     border: 2px dashed #a7f3d0; border-radius: 14px;
@@ -290,17 +269,12 @@ const css = `
   .wh-add-name { font-size: 0.8rem; font-weight: 600; color: #065f46; }
   .wh-add-desc { font-size: 0.7rem; color: #9ca3af; margin-top: 2px; }
 
-  /* Success state */
-  .wh-success {
-    text-align: center; padding: 2.5rem 1rem;
-    animation: panelIn 0.4s ease;
-  }
+  .wh-success { text-align: center; padding: 2.5rem 1rem; animation: panelIn 0.4s ease; }
   .wh-success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
   .wh-success-title { font-size: 1.4rem; font-weight: 600; color: #065f46; margin-bottom: 0.5rem; }
   .wh-success-sub { color: #6b7280; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6; }
   .wh-success-ref { font-family: 'DM Mono', monospace; font-size: 0.8rem; background: #f0fdf4; border: 1px solid #d1fae5; padding: 8px 16px; border-radius: 8px; color: #10b981; display: inline-block; }
 
-  /* QR-style receive code */
   .wh-receive-box {
     border: 2px dashed #10b981; border-radius: 20px;
     padding: 2rem; text-align: center; margin: 1rem 0;
@@ -315,7 +289,6 @@ const css = `
   .wh-receive-id { font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 500; color: #065f46; margin-bottom: 0.3rem; }
   .wh-receive-phone { font-size: 0.85rem; color: #6b7280; }
 
-  /* SSP callout */
   .wh-ssp-banner {
     background: linear-gradient(135deg, #fef3c7, #fffbeb);
     border: 1px solid #fcd34d; border-radius: 12px;
@@ -325,7 +298,6 @@ const css = `
   }
   .wh-ssp-flag { font-size: 1.3rem; }
 
-  /* Tabs */
   .wh-tabs { display: flex; gap: 4px; background: #f0fdf4; padding: 4px; border-radius: 12px; margin-bottom: 1.5rem; }
   .wh-tab {
     flex: 1; padding: 9px; text-align: center;
@@ -335,15 +307,12 @@ const css = `
   }
   .wh-tab.active { background: #10b981; color: #fff; box-shadow: 0 2px 8px rgba(16,185,129,0.25); }
 
-  /* Divider */
   .wh-divider { height: 1px; background: #d1fae5; margin: 1.5rem 0; }
 
-  /* Info box */
   .wh-info {
     background: #ecfdf5; border: 1px solid #6ee7b7;
     border-radius: 10px; padding: 12px 14px;
-    font-size: 0.82rem; color: #065f46; margin-top: 1rem;
-    line-height: 1.6;
+    font-size: 0.82rem; color: #065f46; margin-top: 1rem; line-height: 1.6;
   }
   .wh-info strong { font-weight: 600; }
 `;
@@ -462,7 +431,7 @@ function SendPanel() {
       </div>
 
       <button className="wh-submit" type="submit" disabled={loading}>
-        {loading ? "Processing…" : `Send ${fromCurrency} ${amount ? parseFloat(amount).toLocaleString() : ""}` }
+        {loading ? "Processing…" : `Send ${fromCurrency} ${amount ? parseFloat(amount).toLocaleString() : ""}`}
       </button>
     </form>
   );
@@ -675,12 +644,12 @@ function InvestPanel() {
     <form onSubmit={handleInvest}>
       <div className="wh-label">Choose investment type</div>
       <div className="wh-invest-grid">
-        {INVESTMENT_OPTIONS.map(inv => (
-          <div key={inv.id} className={`wh-invest-card ${selected === inv.id ? "selected" : ""}`} onClick={() => setSelected(inv.id)}>
-            <div className="wh-invest-emoji">{inv.emoji}</div>
-            <div className="wh-invest-name">{inv.name}</div>
-            <div className="wh-invest-desc">{inv.desc}</div>
-            <div className="wh-invest-min">Min: KES {inv.minAmount.toLocaleString()}</div>
+        {INVESTMENT_OPTIONS.map(opt => (
+          <div key={opt.id} className={`wh-invest-card ${selected === opt.id ? "selected" : ""}`} onClick={() => setSelected(opt.id)}>
+            <div className="wh-invest-emoji">{opt.emoji}</div>
+            <div className="wh-invest-name">{opt.name}</div>
+            <div className="wh-invest-desc">{opt.desc}</div>
+            <div className="wh-invest-min">Min: KES {opt.minAmount.toLocaleString()}</div>
           </div>
         ))}
       </div>
@@ -701,7 +670,7 @@ function InvestPanel() {
             <div className="wh-field">
               <label className="wh-label">Duration (months)</label>
               <select className="wh-select" value={duration} onChange={e => setDuration(e.target.value)}>
-                {["1","3","6","12","24","36"].map(d => <option key={d} value={d}>{d} month{d > 1 ? "s" : ""}</option>)}
+                {["1","3","6","12","24","36"].map(d => <option key={d} value={d}>{d} month{parseInt(d) > 1 ? "s" : ""}</option>)}
               </select>
             </div>
           </div>
@@ -726,7 +695,6 @@ function InvestPanel() {
 function ConnectPanel() {
   const [connecting, setConnecting] = useState(null);
   const [connected, setConnected] = useState(CONNECTED_ACCOUNTS.map(a => a.id));
-  const [form, setForm] = useState({});
 
   const handleConnect = (id, e) => {
     e.preventDefault();
@@ -738,16 +706,13 @@ function ConnectPanel() {
 
   return (
     <div>
-      {/* Connected */}
       {CONNECTED_ACCOUNTS.length > 0 && (
         <>
           <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>Connected Accounts</div>
           <div className="wh-accounts-list">
             {CONNECTED_ACCOUNTS.map(acc => (
               <div key={acc.id} className="wh-account-card">
-                <div className="wh-account-icon" style={{ background: acc.color + "20" }}>
-                  {acc.icon}
-                </div>
+                <div className="wh-account-icon" style={{ background: acc.color + "20" }}>{acc.icon}</div>
                 <div className="wh-account-info">
                   <div className="wh-account-name">{acc.name}</div>
                   <div className="wh-account-num">{acc.number}</div>
@@ -763,7 +728,6 @@ function ConnectPanel() {
         </>
       )}
 
-      {/* Add new */}
       <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>Connect New Account</div>
       <div className="wh-add-grid">
         {PAYMENT_METHODS.map(m => (
@@ -775,7 +739,6 @@ function ConnectPanel() {
         ))}
       </div>
 
-      {/* Connect modal */}
       {connecting && (() => {
         const m = PAYMENT_METHODS.find(x => x.id === connecting);
         const isConnectedNow = connected.includes(connecting);
@@ -798,7 +761,7 @@ function ConnectPanel() {
                       <div style={{ fontSize: "0.8rem", color: "#9ca3af" }}>{m.desc}</div>
                     </div>
                   </div>
-                  {(m.id === "mpesa" || m.id === "airtel" || m.id === "mtn" || m.id === "tigopesa" || m.id === "ecocash" || m.id === "orange") && (
+                  {["mpesa","airtel","mtn","tigopesa","ecocash","orange"].includes(m.id) && (
                     <div className="wh-field">
                       <label className="wh-label">Phone Number</label>
                       <input className="wh-input" type="tel" placeholder="+254 712 345 678" required />
@@ -819,8 +782,11 @@ function ConnectPanel() {
                       </div>
                     </>
                   )}
-                  {(m.id === "paypal" || m.id === "crypto") && (
-                    <div className="wh-field"><label className="wh-label">{m.id === "paypal" ? "PayPal Email" : "Wallet Address"}</label><input className="wh-input" type={m.id === "paypal" ? "email" : "text"} placeholder={m.id === "paypal" ? "you@email.com" : "0x..."} required /></div>
+                  {["paypal","crypto"].includes(m.id) && (
+                    <div className="wh-field">
+                      <label className="wh-label">{m.id === "paypal" ? "PayPal Email" : "Wallet Address"}</label>
+                      <input className="wh-input" type={m.id === "paypal" ? "email" : "text"} placeholder={m.id === "paypal" ? "you@email.com" : "0x..."} required />
+                    </div>
                   )}
                   <div style={{ display: "flex", gap: "10px", marginTop: "0.5rem" }}>
                     <button type="button" onClick={() => setConnecting(null)} style={{ flex: 1, padding: "13px", border: "1.5px solid #d1fae5", borderRadius: "12px", background: "#f0fdf4", color: "#065f46", fontWeight: 600, cursor: "pointer", fontFamily: "DM Sans, sans-serif" }}>Cancel</button>
@@ -886,7 +852,7 @@ export default function WalletHub() {
         <div className="wh-quick-inner">
           {actions.map(a => (
             <div key={a.id} className={`wh-quick-btn ${active === a.id ? "active" : ""}`} onClick={() => setActive(a.id)}>
-              <span className="wh-qb-icon" style={{ fontSize: a.id === "send" || a.id === "receive" ? "1.3rem" : "1.5rem" }}>{a.icon}</span>
+              <span className="wh-qb-icon">{a.icon}</span>
               <span className="wh-qb-label">{a.label}</span>
             </div>
           ))}
@@ -899,10 +865,10 @@ export default function WalletHub() {
             <span>{panelTitles[active].icon}</span>
             {panelTitles[active].title}
           </div>
-          {active === "send" && <SendPanel />}
+          {active === "send"    && <SendPanel />}
           {active === "receive" && <ReceivePanel />}
           {active === "deposit" && <DepositPanel />}
-          {active === "invest" && <InvestPanel />}
+          {active === "invest"  && <InvestPanel />}
           {active === "connect" && <ConnectPanel />}
         </div>
       </div>
