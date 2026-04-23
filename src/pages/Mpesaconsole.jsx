@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 
 // ── Points to your real Monexia backend ──────────────────────
-const API = import.meta.env.VITE_API_URL || "http://localhost:5003";
+const API = import.meta.env.VITE_API_URL || "https://monexiabackend.onrender.com/api";
 
 // ── Theme ────────────────────────────────────────────────────
 const C = {

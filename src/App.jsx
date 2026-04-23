@@ -23,7 +23,7 @@ import BusinessTools from "./pages/BusinessTools.jsx";
 import Settings from "./pages/Settings.jsx";
 import Investment from "./pages/Investment.jsx";
 import WalletHub from "./pages/WalletHub.jsx";
-import MpesaConsole from "./pages/MpesaConsole.jsx"; // ✅ M-Pesa console
+import MpesaConsole from "./pages/MpesaConsole";
 
 function PublicLayout() {
   return (
